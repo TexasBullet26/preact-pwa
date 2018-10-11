@@ -1,17 +1,31 @@
 import {h, Component} from 'preact' // eslint-disable-line no-unused-vars
-import {Provider, connect} from 'preact-redux' // introduces 2.9kb on gzipped bundle, todo: barf, fix
-import Articles from '.Articles'
+import PreactRedux from 'preact-redux' // introduces 2.9kb on gzipped bundle
+import {getPathname} from './../store/selectors/meta'
+import Header from './Header'
+import Posts from './Posts'
+import Post from './Post'
+import Home from './Home'
 import About from './About'
-import Nav from './Nav'
+import FourOhFour from './FourOhFour'
+const {Provider, connect} = PreactRedux
 
-const App = ({store, location}) => (
+const Content = connect((state) => ({pathname: getPathname(state)}))(({pathname}) => {
+    if (pathname.indexOf('/blog/') > -1) {
+        return <Post/>
+    } else if (pathname === '/blog') {
+        return <Posts/>
+    } else if (pathname === '/') {
+        return <Home/>
+    } else {
+        return <FourOhFour/>
+    }
+})
+
+export default({store}) => (
     <Provider store={store}>
-        <div className='App'>
-            <Nav/> {location.url === '/about'
-                ? <About/>
-                : <Articles/>}
+        <div>
+            <Header/>
+            <Content/>
         </div>
     </Provider>
 )
-
-export default connect((state) => ({locatiion: state.location}))(App)
